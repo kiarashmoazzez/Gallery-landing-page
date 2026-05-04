@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kimo — Opening Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Atmospheric corner images (gallery/art subjects) -->
+  <img id="bg-tl" class="bg-art"
+    src="https://images.unsplash.com/photo-1578301978018-3005759f48f7?auto=format&fit=crop&w=340&q=60" alt="">
+  <img id="bg-tr" class="bg-art"
+    src="https://images.unsplash.com/photo-1577083165633-14ebcdb6d7ae?auto=format&fit=crop&w=300&q=60" alt="">
+  <img id="bg-bl" class="bg-art"
+    src="https://images.unsplash.com/photo-1578926288207-a90a103bb55a?auto=format&fit=crop&w=290&q=60" alt="">
+  <img id="bg-br" class="bg-art"
+    src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=340&q=60" alt="">
+
+  <!-- Stage -->
+  <div id="stage-wrap">
+    <div id="stage">
+      <div id="stage-header">
+        <span id="wordmark">Kimo</span>
+        <button id="menu-btn" type="button" aria-label="Open menu" aria-controls="page-menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav id="page-menu" aria-label="Page sections" aria-hidden="true">
+          <ul class="page-menu-list">
+            <li><button class="page-menu-link is-active" type="button" data-target="hero-anchor"><span class="num">01</span><span class="label">Hero /<br>Closed Collection</span></button></li>
+            <li><button class="page-menu-link" type="button" data-target="ks02"><span class="num">02</span><span class="label">Ribbon<br>Unlocks</span></button></li>
+            <li><button class="page-menu-link" type="button" data-target="ks03"><span class="num">03</span><span class="label">Gallery<br>Cloud</span></button></li>
+            <li><button class="page-menu-link" type="button" data-target="ks04"><span class="num">04</span><span class="label">Focus</span></button></li>
+            <li><button class="page-menu-link" type="button" data-target="ks05"><span class="num">05</span><span class="label">Details</span></button></li>
+            <li><button class="page-menu-link" type="button" data-target="ks06"><span class="num">06</span><span class="label">Closing</span></button></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div id="stage-body">
+        <canvas id="gl"></canvas>
+
+        <div id="hero-headline" aria-label="Opening Collection">
+          <span class="hw" id="hw-l">Opening</span>
+          <span class="hw" id="hw-r">Collection</span>
+        </div>
+
+        <div id="spill">
+          <div class="dot"></div>
+          <span class="label">Explore</span>
+        </div>
+
+        <div id="hint">Drag cards to explore</div>
+        <div id="hero-meta">
+          <div id="card-count">32 works</div>
+          <div id="launch-date">June 2026</div>
+        </div>
+
+        <div id="closing-headline" aria-hidden="true">
+          <p>Art is endless.</p>
+          <p>So is curiosity.</p>
+        </div>
+
+        <aside id="journey-copy" aria-live="polite">
+          <span id="journey-num">01</span>
+          <span id="journey-title">Hero /<br>Closed Collection</span>
+          <p id="journey-desc">The collection is whole. Elegant. Mysterious. An invitation to explore.</p>
+        </aside>
+
+        <nav id="stage-progress" aria-label="Collection sections">
+          <button class="stage-progress-dot is-active" type="button" data-target="hero-anchor" aria-label="Go to section 01"></button>
+          <button class="stage-progress-dot" type="button" data-target="ks02" aria-label="Go to section 02"></button>
+          <button class="stage-progress-dot" type="button" data-target="ks03" aria-label="Go to section 03"></button>
+          <button class="stage-progress-dot" type="button" data-target="ks04" aria-label="Go to section 04"></button>
+          <button class="stage-progress-dot" type="button" data-target="ks05" aria-label="Go to section 05"></button>
+          <button class="stage-progress-dot" type="button" data-target="ks06" aria-label="Go to section 06"></button>
+        </nav>
+
+        <aside id="stage-art-label" aria-hidden="true">
+          <span id="stage-art-kicker">Johannes Vermeer</span>
+          <span id="stage-art-title">Girl with a<br>Pearl Earring</span>
+          <span id="stage-art-meta">c. 1665<br>Oil on canvas</span>
+        </aside>
+
+        <aside id="focus-info" aria-live="polite" aria-hidden="true">
+          <button id="focus-close" type="button" aria-label="Close artwork information">&times;</button>
+          <span id="focus-kicker">Selected work</span>
+          <h2 id="focus-title">Untitled study</h2>
+          <p id="focus-copy"></p>
+          <div id="focus-meta"></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       SCROLL EXPERIENCE  02 – 06 + Footer
+       ════════════════════════════════════════════════════════════ -->
+  <div id="kimo-scroll">
+
+    <!-- spacer: keeps fixed hero visible during section 01 -->
+    <div id="hero-anchor"></div>
+
+    <!-- ── 02  RIBBON UNLOCKS ──────────────────────────────────── -->
+    <section class="ks" id="ks02">
+      <aside class="ks-lbl">
+        <div class="ks-rule"><div class="ks-dot"></div></div>
+        <div class="ks-inner">
+          <span class="ks-num">02</span>
+          <span class="ks-ttl">RIBBON<br>UNLOCKS</span>
+          <p class="ks-dsc">As you scroll,<br>the collection begins<br>to open up.<br>Pieces break free,<br>moving into space.</p>
+        </div>
+      </aside>
+      <div class="ks-stage">
+        <div class="art-card s02-card" style="left:5%;top:57%;--w:68px;--rot:-28deg"><img src="Resources/artworks/painting_02.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:12%;top:42%;--w:72px;--rot:-20deg"><img src="Resources/artworks/painting_04.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:18%;top:27%;--w:76px;--rot:-13deg"><img src="Resources/artworks/painting_01.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:25%;top:44%;--w:72px;--rot:-7deg"><img src="Resources/artworks/painting_05.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:31%;top:60%;--w:74px;--rot:-1deg"><img src="Resources/artworks/painting_03.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:38%;top:48%;--w:78px;--rot:5deg"><img src="Resources/artworks/painting_02.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:44%;top:33%;--w:74px;--rot:9deg"><img src="Resources/artworks/painting_04.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:50%;top:21%;--w:70px;--rot:13deg"><img src="Resources/artworks/painting_01.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:56%;top:38%;--w:76px;--rot:8deg"><img src="Resources/artworks/painting_05.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:62%;top:55%;--w:72px;--rot:14deg"><img src="Resources/artworks/painting_03.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:68%;top:44%;--w:78px;--rot:19deg"><img src="Resources/artworks/painting_02.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:74%;top:30%;--w:74px;--rot:23deg"><img src="Resources/artworks/painting_04.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:80%;top:47%;--w:72px;--rot:26deg"><img src="Resources/artworks/painting_01.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:86%;top:62%;--w:68px;--rot:29deg"><img src="Resources/artworks/painting_05.jpg" alt=""></div>
+        <div class="art-card s02-card" style="left:92%;top:47%;--w:74px;--rot:24deg"><img src="Resources/artworks/painting_03.jpg" alt=""></div>
+      </div>
+    </section>
+
+    <!-- ── 03  IMMERSIVE GALLERY CLOUD ────────────────────────── -->
+    <section class="ks" id="ks03">
+      <aside class="ks-lbl">
+        <div class="ks-rule"><div class="ks-dot"></div></div>
+        <div class="ks-inner">
+          <span class="ks-num">03</span>
+          <span class="ks-ttl">IMMERSIVE<br>GALLERY CLOUD</span>
+          <p class="ks-dsc">You're surrounded<br>by art.<br>Scroll to move<br>through the cloud.<br>Each piece has<br>its own presence.</p>
+        </div>
+      </aside>
+      <div class="ks-stage">
+        <div class="art-card s03-card" style="left:8%;top:18%;--w:88px;--rot:-14deg;--blur:2px" data-depth="-0.6"><img src="Resources/artworks/painting_03.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:16%;top:59%;--w:100px;--rot:-6deg;--blur:0px" data-depth="0.3"><img src="Resources/artworks/painting_01.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:23%;top:32%;--w:82px;--rot:8deg;--blur:1px" data-depth="-0.2"><img src="Resources/artworks/painting_05.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:30%;top:74%;--w:78px;--rot:-10deg;--blur:3px" data-depth="-0.8"><img src="Resources/artworks/painting_02.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:38%;top:27%;--w:122px;--rot:4deg;--blur:0px" data-depth="0.5"><img src="Resources/artworks/painting_04.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:47%;top:56%;--w:96px;--rot:-4deg;--blur:0.5px" data-depth="0.1"><img src="Resources/artworks/painting_03.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:56%;top:16%;--w:84px;--rot:12deg;--blur:1.5px" data-depth="-0.4"><img src="Resources/artworks/painting_01.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:63%;top:65%;--w:94px;--rot:-8deg;--blur:0px" data-depth="0.4"><img src="Resources/artworks/painting_02.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:71%;top:39%;--w:86px;--rot:16deg;--blur:1px" data-depth="-0.3"><img src="Resources/artworks/painting_05.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:80%;top:21%;--w:80px;--rot:-18deg;--blur:2.5px" data-depth="-0.7"><img src="Resources/artworks/painting_04.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:87%;top:58%;--w:90px;--rot:10deg;--blur:2px" data-depth="-0.5"><img src="Resources/artworks/painting_03.jpg" alt=""></div>
+        <div class="art-card s03-card" style="left:4%;top:79%;--w:84px;--rot:14deg;--blur:3.5px" data-depth="-0.9"><img src="Resources/artworks/painting_01.jpg" alt=""></div>
+        <!-- Right nav dots -->
+        <nav class="s03-nav" aria-label="Scroll progress">
+          <div class="s03-nav-dot active"></div>
+          <div class="s03-nav-dot"></div>
+          <div class="s03-nav-dot"></div>
+          <div class="s03-nav-dot"></div>
+          <div class="s03-nav-dot"></div>
+        </nav>
+      </div>
+    </section>
+
+    <!-- ── 04  FOCUS ──────────────────────────────────────────── -->
+    <section class="ks" id="ks04">
+      <aside class="ks-lbl">
+        <div class="ks-rule"><div class="ks-dot"></div></div>
+        <div class="ks-inner">
+          <span class="ks-num">04</span>
+          <span class="ks-ttl">FOCUS</span>
+          <p class="ks-dsc">Scroll slower.<br>A piece comes<br>into focus.<br>The rest softens.<br>A story is revealed.</p>
+        </div>
+      </aside>
+      <div class="ks-stage">
+        <!-- Background blurred cards -->
+        <div class="art-card s04-bg" style="left:4%;top:22%;--w:76px;--rot:-15deg;--blur:6px"><img src="Resources/artworks/painting_01.jpg" alt=""></div>
+        <div class="art-card s04-bg" style="left:10%;top:69%;--w:70px;--rot:8deg;--blur:5px"><img src="Resources/artworks/painting_03.jpg" alt=""></div>
+        <div class="art-card s04-bg" style="left:75%;top:18%;--w:80px;--rot:12deg;--blur:6px"><img src="Resources/artworks/painting_05.jpg" alt=""></div>
+        <div class="art-card s04-bg" style="left:83%;top:66%;--w:74px;--rot:-9deg;--blur:5px"><img src="Resources/artworks/painting_02.jpg" alt=""></div>
+        <div class="art-card s04-bg" style="left:2%;top:47%;--w:66px;--rot:-20deg;--blur:7px"><img src="Resources/artworks/painting_03.jpg" alt=""></div>
+        <div class="art-card s04-bg" style="left:88%;top:43%;--w:72px;--rot:18deg;--blur:6px"><img src="Resources/artworks/painting_01.jpg" alt=""></div>
+        <!-- Focused card + info panel -->
+        <div class="s04-focus-row">
+          <div class="s04-focus-card">
+            <img src="Resources/artworks/painting_04.jpg" alt="Girl with a Pearl Earring">
+          </div>
+          <div class="s04-info" id="s04-info">
+            <p class="s04-info-artist">Johannes Vermeer</p>
+            <h2 class="s04-info-title">Girl with a<br>Pearl Earring</h2>
+            <p class="s04-info-meta">c. 1665<br>Oil on canvas</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 05  DETAILS ────────────────────────────────────────── -->
+    <section class="ks" id="ks05">
+      <aside class="ks-lbl">
+        <div class="ks-rule"><div class="ks-dot"></div></div>
+        <div class="ks-inner">
+          <span class="ks-num">05</span>
+          <span class="ks-ttl">DETAILS</span>
+          <p class="ks-dsc">Get closer.<br>Explore details,<br>textures, and<br>nuances.<br>Every piece invites<br>a deeper look.</p>
+        </div>
+      </aside>
+      <div class="ks-stage">
+        <div class="s05-thumb"><img src="Resources/artworks/painting_01.jpg" alt="The Starry Night"></div>
+        <div class="s05-crop"><img src="Resources/artworks/painting_01.jpg" alt="Detail — The Starry Night, Van Gogh"></div>
+      </div>
+    </section>
+
+    <!-- ── 06  CLOSING ────────────────────────────────────────── -->
+    <section class="ks" id="ks06">
+      <aside class="ks-lbl">
+        <div class="ks-rule"><div class="ks-dot"></div></div>
+        <div class="ks-inner">
+          <span class="ks-num">06</span>
+          <span class="ks-ttl">CLOSING</span>
+          <p class="ks-dsc">The journey ends,<br>but the collection<br>remains with you.<br>Scroll back up<br>to explore again.</p>
+        </div>
+      </aside>
+      <div class="ks-stage">
+        <div class="s06-ribbon">
+          <div class="art-card s06-card" style="left:29%;top:48%;--w:52px;--rot:-22deg"><img src="Resources/artworks/painting_01.jpg" alt=""></div>
+          <div class="art-card s06-card" style="left:37%;top:37%;--w:54px;--rot:-14deg"><img src="Resources/artworks/painting_02.jpg" alt=""></div>
+          <div class="art-card s06-card" style="left:43%;top:46%;--w:56px;--rot:-6deg"><img src="Resources/artworks/painting_03.jpg" alt=""></div>
+          <div class="art-card s06-card" style="left:50%;top:57%;--w:56px;--rot:2deg"><img src="Resources/artworks/painting_04.jpg" alt=""></div>
+          <div class="art-card s06-card" style="left:57%;top:47%;--w:54px;--rot:9deg"><img src="Resources/artworks/painting_05.jpg" alt=""></div>
+          <div class="art-card s06-card" style="left:63%;top:37%;--w:56px;--rot:15deg"><img src="Resources/artworks/painting_01.jpg" alt=""></div>
+          <div class="art-card s06-card" style="left:70%;top:48%;--w:52px;--rot:21deg"><img src="Resources/artworks/painting_02.jpg" alt=""></div>
+        </div>
+        <div class="s06-heading">
+          <p>Art is endless.</p>
+          <p>So is curiosity.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FOOTER ─────────────────────────────────────────────── -->
+    <footer id="kimo-footer">
+      <span class="foot-copy">© KIMO 2026</span>
+      <nav>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+        <a href="#">Journal</a>
+      </nav>
+    </footer>
+
+  </div><!-- /#kimo-scroll -->
+
+  <!-- Three.js r160 -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <!-- GSAP 3.12 -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+  <script src="js/main.js"></script>
+  <script src="js/scroll.js"></script>
+
+</body>
+</html>

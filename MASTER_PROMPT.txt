@@ -1,0 +1,790 @@
+MASTER REBUILD PROMPT — KIMO "OPENING COLLECTION" PAGE
+=======================================================
+Version: 1.0  |  File: index.html  |  Self-contained single-page app
+=======================================================
+
+PURPOSE
+-------
+Recreate a luxury art-gallery landing page called "Kimo — Opening Collection".
+The page is a single HTML file with all CSS and JavaScript inline. No build tools,
+no npm, no frameworks. It uses Three.js (CDN) for WebGL and GSAP + ScrollTrigger
+(CDN) for animations.
+
+
+TECHNOLOGY STACK
+----------------
+- HTML5 / CSS3 (custom properties, clamp(), logical properties)
+- Three.js r160  →  https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js
+- GSAP 3.12.5    →  https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js
+- GSAP ScrollTrigger  →  https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js
+- Google Fonts: Cormorant Garamond (ital,wght@0,300;0,400;1,300;1,400)
+                Inter (wght@300;400;500)
+
+
+PAGE TITLE
+----------
+"Kimo — Opening Collection"
+
+
+===========================================================================
+DESIGN SYSTEM — CSS CUSTOM PROPERTIES
+===========================================================================
+
+All colours are defined as CSS variables on :root and mutated by JavaScript
+during scroll to create a continuous colour-shift experience:
+
+  --bg:        #f4efe4   (warm parchment — page body background)
+  --stage:     #fbf7ee   (lighter cream — the main stage card)
+  --stage-rgb: 251,247,238  (RGB triplet for rgba() usage)
+  --fg:        #111111   (near-black — all text, icons, dots)
+  --fg-rgb:    17,17,17
+  --ui:        #1a1a1a   (hamburger button background)
+  --ui-icon:   #ffffff   (hamburger icon lines)
+  --muted:     #888888   (secondary text, labels)
+  --pill:      #ebebeb   (scroll pill / badge background)
+
+JavaScript interpolates these across 6 colour stops as the user scrolls:
+  Stop 0 (hero):     stage #fbf7ee, bg #f4efe4, fg #111111  (warm light)
+  Stop 1 (ribbon):   stage #f2e5d3, bg #dccab1, fg #15120f  (sepia)
+  Stop 2 (cloud):    stage #9f907a, bg #6c6254, fg #100f0d  (dark sepia)
+  Stop 3 (focus):    stage #191714, bg #0d0c0a, fg #f5eee3  (near-black, fg inverts)
+  Stop 4 (details):  stage #101820, bg #070b10, fg #f2eee6  (dark teal-black)
+  Stop 5 (closing):  stage #fbf7ee, bg #f4efe4, fg #111111  (back to warm light)
+
+Use smoothstep easing when interpolating between stops.
+
+
+===========================================================================
+TYPOGRAPHY
+===========================================================================
+
+Serif (display/headlines):  Cormorant Garamond
+  - Headline (hero):  clamp(54px, 10.4vw, 188px) / weight 400 / line-height 0.88
+  - Art title label:  clamp(30px, 3.6vw, 52px)   / weight 400 / line-height 0.98
+  - Section number:   clamp(24px, 2.8vw, 36px)   / weight 300 / line-height 1
+  - Journey number:   clamp(28px, 3.1vw, 42px)   / weight 300 / line-height 1
+  - Closing headline: clamp(34px, 5.2vw, 82px)   / weight 400, second line italic weight 300
+  - Focus info title: clamp(30px, 4vw, 46px)      / weight 400 / line-height 0.95
+  - Menu numbers:     24px / weight 300
+
+Sans-serif (UI/body):  Inter
+  - Wordmark:   12px / weight 400 / letter-spacing 0.14em / UPPERCASE
+  - Section kicker: 8.5px / weight 500 / letter-spacing 0.18em / UPPERCASE
+  - Journey title:  10px / weight 500 / letter-spacing 0.17em / UPPERCASE
+  - Journey desc:   12px / weight 300 / line-height 1.75
+  - Labels / kickers: 10px / weight 400-500 / letter-spacing 0.10–0.16em / UPPERCASE
+  - Body / meta:    11–13px / weight 300–400 / line-height 1.58–2.05
+  - All sans: -webkit-font-smoothing: antialiased
+
+
+===========================================================================
+STRUCTURAL LAYOUT
+===========================================================================
+
+The page has TWO stacking layers:
+
+LAYER 1 — Fixed stage (z-index 10):
+  #stage-wrap  position:fixed; inset:0; display:flex; align-items:center;
+               justify-content:center; pointer-events:none; z-index:10
+  #stage       100vw × 100vh (also 100svh, 100dvh); background var(--stage);
+               inset box-shadow rgba(0,0,0,0.04) 96px;
+               starts opacity:0, scale:0.96; animates in on load
+
+LAYER 2 — Scrollable content (#kimo-scroll):
+  Normal document flow; background var(--bg); sits behind/below #stage
+
+The #stage fades out as the user reaches the footer (calculated from
+getBoundingClientRect, fades 0→0.95 opacity over the last 32vh of scroll).
+
+
+===========================================================================
+GRAIN OVERLAY
+===========================================================================
+
+body::after {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'
+    width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise'
+    baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/></filter>
+    <rect width='300' height='300' filter='url(#n)'/></svg>");
+}
+
+
+===========================================================================
+ATMOSPHERIC CORNER IMAGES
+===========================================================================
+
+Four fixed <img> elements (.bg-art) positioned at page corners (display:none
+in CSS — shown only when JS explicitly enables them if desired).
+IDs: #bg-tl (top-left 200px), #bg-tr (top-right 175px),
+     #bg-bl (bottom-left 170px), #bg-br (bottom-right 205px)
+All: position:fixed; pointer-events:none; z-index:1; opacity:0;
+     filter:blur(1.5px) saturate(0.78); object-fit:cover
+Offset: -12px from their respective corner edges
+
+Source images (Unsplash art/painting subjects):
+  bg-tl: photo-1578301978018-3005759f48f7  w=340
+  bg-tr: photo-1577083165633-14ebcdb6d7ae  w=300
+  bg-bl: photo-1578926288207-a90a103bb55a  w=290
+  bg-br: photo-1547891654-e66ed7ebb968    w=340
+
+
+===========================================================================
+COMPONENT: STAGE HEADER
+===========================================================================
+
+Centered flex row; padding clamp(18px,3.3vh,34px) at top, 0 at bottom.
+
+WORDMARK (#wordmark):
+  Text: "Kimo"
+  Font: Inter 12px / weight 400 / letter-spacing 0.14em / UPPERCASE
+  Centered in header
+
+HAMBURGER BUTTON (#menu-btn):
+  Position: absolute right clamp(18px,3vw,44px); top clamp(16px,2.7vh,30px)
+  Size: 32×32px; background var(--ui); border-radius 8px; z-index 60
+  Contains: 3 <span> bars, each 13×1.5px, white, rounded, gap 4px
+  Open state (aria-expanded="true"):
+    span:nth-child(1) → translateY(5.5px) rotate(45deg)
+    span:nth-child(2) → opacity 0
+    span:nth-child(3) → translateY(-5.5px) rotate(-45deg)
+
+DROPDOWN MENU (#page-menu):
+  Position: absolute right clamp(18px,3vw,44px); top = button top + 42px
+  Width: min(260px, calc(100vw - 36px)); padding 14px; border-radius 8px
+  Background: rgba(stage-rgb, 0.88); backdrop-filter: blur(24px) saturate(1.15)
+  Border: 1px solid rgba(fg,0.10)
+  Box-shadow: 0 18px 58px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.66)
+  Hidden: opacity:0, translateY(-8px), pointer-events:none
+  Open (.is-open): opacity:1, translateY(0), pointer-events:auto
+  Transition: 0.22s ease on opacity and transform
+
+  Menu items (.page-menu-link):
+    grid-template-columns: 34px 1fr; min-height: 42px; gap 10px
+    border-radius 6px; hover/active: background rgba(fg,0.08)
+    .num: Cormorant Garamond 24px weight 300 (shows "01"–"06")
+    .label: Inter 10px weight 500 letter-spacing 0.15em UPPERCASE
+
+  6 items:
+    01 — Hero / Closed Collection (data-target="hero-anchor")
+    02 — Ribbon Unlocks           (data-target="ks02")
+    03 — Gallery Cloud            (data-target="ks03")
+    04 — Focus                    (data-target="ks04")
+    05 — Details                  (data-target="ks05")
+    06 — Closing                  (data-target="ks06")
+
+
+===========================================================================
+COMPONENT: WEBGL STAGE BODY (#stage-body)
+===========================================================================
+
+flex:1; position:relative; overflow:hidden
+Contains a <canvas id="gl"> at position:absolute; inset:0
+
+Bottom fade vignette (#stage-body::before):
+  height min(44vh, 420px); gradient from stage colour (0.98 opacity at bottom)
+  to transparent at top; z-index 4
+
+THREE.JS SCENE:
+  Renderer: alpha:true, antialias:true, pixelRatio min(devicePixelRatio,2)
+  Clear: transparent
+  Scene: ambient light 1.0 white + directional light 0xfff6ec intensity 0.55
+         from position (160, 260, 380)
+  Camera: PerspectiveCamera FOV 60, near 1 far 2000
+          Z position auto-calculated to fit the ribbon: clamp(320,z,760)
+
+S-CURVE RIBBON (32 cards):
+  N = 32 cards; each card is a PlaneGeometry(52, 68)
+  CW = 430 world units (span); CAMP = 88 (amplitude)
+  Both CW and CAMP scale responsively with viewport aspect ratio
+  S-curve formula:
+    x(t) = -CW/2 + t * CW          (t from 0 to 1)
+    y(t) = -CAMP * sin(t * PI * 2)
+    angle(t) = -atan2(-CAMP * PI * 2 * cos(t * PI * 2), CW)
+  Cards evenly spaced t = i/(N-1); z-offset = i * 0.5
+
+  Each card is a THREE.Group (pivot) containing:
+    - front mesh: MeshStandardMaterial with artwork texture (roughness 0.34)
+    - back mesh: MeshStandardMaterial cream (#f4ede3, roughness 0.6),
+                 rotated Y=PI, z=-0.5
+
+  cardScale: clamp(min(w/900, h/560), 0.86, 1.58) — global scale multiplier
+  Group (all 32 cards): slight tilt springs (gry, grx) toward mouse position
+
+ARTWORKS (5 famous works cycled across 32 slots):
+  0: The Starry Night, Vincent van Gogh, 1889
+     Wikimedia: Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg (1280px)
+  1: Mona Lisa, Leonardo da Vinci, c. 1503-06
+     Wikimedia: Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg
+  2: The Great Wave off Kanagawa, Katsushika Hokusai, c. 1831
+     Wikimedia: Great_Wave_off_Kanagawa2.jpg
+  3: Girl with a Pearl Earring, Johannes Vermeer, c. 1665
+     Wikimedia: Meisje_met_de_parel.jpg
+  4: The Kiss, Gustav Klimt, 1907-08
+     Wikimedia: Gustav_Klimt_016.jpg
+
+  Fallback if loading fails: procedural canvas texture (720×940) using one of
+  4 abstract art styles per (index % 4):
+    Style 0: grid lines + coloured rectangles
+    Style 1: overlapping rotated rectangles
+    Style 2: circles + bezier curves
+    Style 3: quadratic-curve organic shapes
+  All with subtle noise (2600 random 1px dots, opacity 0.055)
+  Textures use SRGBColorSpace + LinearFilter
+
+SPRING PHYSICS CLASS:
+  Constructor: Spring(initial, k=0.08, d=0.82)
+  tick(): vel = (vel + (tgt - cur) * k) * d; cur += vel
+  set(v): snap to value instantly
+  tune(k, d): update stiffness/damping (vel *= 0.55; if prefers-reduced-motion: k≥0.16, d≤0.42)
+
+  Each card has 6 springs:
+    sx, sy, sz (position)
+    srz, srx (rotation z, x)
+    ss (scale)
+
+  Global group springs:
+    gry: k=0.038, d=0.90  (group Y tilt)
+    grx: k=0.038, d=0.90  (group X tilt)
+
+
+===========================================================================
+COMPONENT: HERO HEADLINE
+===========================================================================
+
+#hero-headline:
+  position:absolute; left/right: clamp(20px,4vw,76px); bottom: clamp(20px,3.4vh,42px)
+  z-index:6; display:flex; align-items:flex-end; justify-content:center
+  gap: clamp(18px,3.2vw,64px); pointer-events:none
+
+Two <span class="hw">:
+  #hw-l: "Opening"
+  #hw-r: "Collection"
+  Font: Cormorant Garamond / clamp(54px,10.4vw,188px) / weight 400 / line-height 0.88
+  letter-spacing: -0.01em; color var(--fg); opacity:0 initially
+  Fade in on entrance animation (GSAP, stagger 0.1s, 0.5s duration)
+
+Mobile (<760px): font-size clamp(38px,11.4vw,62px)
+
+
+===========================================================================
+COMPONENT: JOURNEY SIDEBAR (#journey-copy)
+===========================================================================
+
+position:absolute; left clamp(16px,2.6vw,34px); top clamp(26px,5.2vh,56px)
+width clamp(112px,12vw,172px); z-index:26; pointer-events:none; color var(--fg)
+
+::before pseudo — vertical rule:
+  1px wide; height: calc(100vh - clamp(46px,8vh,74px))
+  left: clamp(-11px,-1.15vw,-7px); color rgba(fg,0.16)
+
+::after pseudo — top dot:
+  6×6px circle; filled var(--fg); left = rule x - 2.5px; top:-2px
+
+#journey-num:     Cormorant Garamond clamp(28px,3.1vw,42px) weight 300 / mb 9px
+#journey-title:   Inter 10px weight 500 letter-spacing 0.17em UPPERCASE / mb 19px / line-height 1.65
+#journey-desc:    Inter 12px weight 300 / line-height 1.75 / color rgba(fg,0.58) / max-width 15em
+
+Content per chapter:
+  01: num="01" title="Hero /<br>Closed Collection"
+      desc="The collection is whole. Elegant. Mysterious. An invitation to explore."
+  02: num="02" title="Ribbon<br>Unlocks"
+      desc="As you scroll, the same hero ribbon loosens. Pieces break free and move into space."
+  03: num="03" title="Immersive<br>Gallery Cloud"
+      desc="You move through the collection as a single continuous field of floating works."
+  04: num="04" title="Focus"
+      desc="Scroll slower. One piece comes forward while the rest softens into the background."
+  05: num="05" title="Details"
+      desc="Get closer. Texture, surface, and detail become the main scene."
+  06: num="06" title="Closing"
+      desc="The journey resolves back into a compact ribbon, ready to be explored again."
+
+
+===========================================================================
+COMPONENT: PROGRESS DOTS (#stage-progress)
+===========================================================================
+
+position:absolute; right clamp(14px,2.4vw,34px); top:50%; translateY(-50%)
+6 dots (.stage-progress-dot): 7×7px circles; background rgba(fg,0.26)
+Active dot (.is-active): background var(--fg); scale(1.16)
+Click: smooth scroll to corresponding section
+gap: 11px; z-index:28
+
+Mobile: right 12px
+
+
+===========================================================================
+COMPONENT: ART LABEL (#stage-art-label)
+===========================================================================
+
+position:absolute; left: calc(50% + clamp(110px,18vw,280px)); top:54%
+width: min(230px,24vw); z-index:24; opacity:0 (fades in at section 03-04)
+pointer-events:none
+
+#stage-art-kicker: 10px / letter-spacing 0.12em / rgba(fg,0.58) / UPPERCASE / mb 11px
+#stage-art-title:  Cormorant Garamond clamp(30px,3.6vw,52px) / weight 400 / line-height 0.98
+#stage-art-meta:   Inter 11px / weight 300 / line-height 1.65 / rgba(fg,0.58) / mt 12px
+
+Default content:
+  kicker: "Johannes Vermeer"
+  title:  "Girl with a<br>Pearl Earring"
+  meta:   "c. 1665<br>Oil on canvas"
+
+Mobile (<760px): repositioned to bottom-left (bottom clamp(52px,10vh,90px))
+
+
+===========================================================================
+COMPONENT: SCROLL PILL (#spill)
+===========================================================================
+
+position:absolute; right:0; top:50%; translateY(-50%); z-index:20
+height:40px; width:16px (expands to 84px on hover)
+background var(--pill); border-radius 8px 0 0 8px
+Transition: width 0.38s cubic-bezier(0.16,1,0.3,1)
+Contains: 4px dot (var(--muted)) + "Explore" label (10px, letter-spacing 0.12em)
+Label opacity:0, fades in on hover (0.2s delay 0.15s)
+Click: smooth-scroll to #ks02
+
+
+===========================================================================
+COMPONENT: DRAG HINT (#hint)
+===========================================================================
+
+position:absolute; bottom clamp(18px,3.2vh,34px); left:50%; translateX(-50%)
+10px Inter / letter-spacing 0.14em / color var(--muted) / UPPERCASE
+opacity:0; z-index:5; pointer-events:none
+Text: "Drag cards to explore"
+Behaviour: fades in 1s after entrance, fades out 2.8s later
+           immediately hides if a card is focused
+
+
+===========================================================================
+COMPONENT: HERO META (#hero-meta)
+===========================================================================
+
+position:absolute; left/right clamp(20px,4vw,76px)
+bottom: clamp(20px,3.4vh,42px) + clamp(58px,9.2vw,168px)
+z-index:7; display:flex; justify-content:space-between; align-items:center
+
+#card-count:  Inter 10px weight 300 letter-spacing 0.06em / color var(--muted)
+              Text: "32 works" (updates when cards scattered: "X works · Y floating")
+#launch-date: Inter 11px weight 300 letter-spacing 0.10em / UPPERCASE / color var(--muted)
+              Text: "June 2026"
+Both start opacity:0, animate in during entrance
+
+
+===========================================================================
+COMPONENT: CLOSING HEADLINE (#closing-headline)
+===========================================================================
+
+position:absolute; left:50%; translateX(-50%)
+top: calc(50% + clamp(72px,12vh,128px))
+width: min(760px,70vw); text-align:center; z-index:7; opacity:0
+
+Two <p> children in Cormorant Garamond:
+  p: "Art is endless."   — weight 400 / line-height 0.98
+  p+p: "So is curiosity." — italic weight 300 / color rgba(fg,0.66)
+Font-size: clamp(34px,5.2vw,82px) / letter-spacing -0.01em
+
+Fades in with y-translate when scroll phase > 4.62
+
+
+===========================================================================
+COMPONENT: FOCUS INFO OVERLAY (#focus-info)
+===========================================================================
+
+position:absolute; left:50%; translateX(-50%)
+bottom: clamp(28px,7vh,70px); width: min(440px,calc(100vw - 36px))
+padding 20px 20px 18px; border-radius 14px; z-index:30
+opacity:0; transform: translate(-50%, 18px); pointer-events:none
+
+Glassmorphism background:
+  linear-gradient(145deg, rgba(255,255,255,0.74), rgba(255,255,255,0.38) 44%,
+    rgba(255,255,255,0.52)),
+  radial-gradient(circle at 12% 0%, rgba(255,255,255,0.78), rgba(255,255,255,0) 34%),
+  rgba(242,239,234,0.48)
+backdrop-filter: blur(34px) saturate(1.45) contrast(1.08)
+border: 1px solid rgba(255,255,255,0.58)
+box-shadow: 0 24px 90px rgba(0,0,0,0.18), 0 8px 28px rgba(0,0,0,0.08),
+            inset 0 1px 0 rgba(255,255,255,0.88), inset 0 -1px 0 rgba(255,255,255,0.28)
+
+::before overlay (screen blend):
+  linear-gradient(120deg, rgba(255,255,255,0.68), rgba(255,255,255,0.08) 31%,
+    rgba(255,255,255,0) 58%),
+  linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0))
+  mix-blend-mode: screen
+
+::after inner shadow:
+  inset 0 0 0 1px rgba(255,255,255,0.26), inset 0 -18px 42px rgba(255,255,255,0.24)
+
+CLOSE BUTTON (#focus-close):
+  position:absolute; top:14px; right:14px; 30×30px circle
+  border: 1px solid rgba(255,255,255,0.62)
+  background: linear-gradient(145deg, rgba(255,255,255,0.78), rgba(255,255,255,0.38))
+  Content: × (HTML entity ×); font-size 18px; cursor pointer
+  Hover: scale(1.06)
+
+#focus-kicker: 10px / weight 500 / letter-spacing 0.16em / rgba(17,17,17,0.62) / UPPERCASE
+#focus-title:  Cormorant Garamond clamp(30px,4vw,46px) / weight 400 / line-height 0.95
+               text-shadow: 0 1px 0 rgba(255,255,255,0.48)
+#focus-copy:   Inter 13px / weight 400 / line-height 1.58 / rgba(17,17,17,0.74) / mt 12px
+#focus-meta:   flex-wrap gap 8px; mt 14px
+  Pill tags: padding 6px 9px; border-radius 999px; border rgba(255,255,255,0.56)
+             background rgba(255,255,255,0.44); 10px / letter-spacing 0.08em / UPPERCASE
+
+Open state (.is-open): pointer-events:auto
+  GSAP animate: opacity→1, y→0, duration 0.72s, ease expo.out
+
+Close: GSAP animate: opacity→0, y→18, duration 0.42s, ease power3.inOut
+
+Content when a card is clicked:
+  kicker: "Selected work"
+  title: artwork.title
+  copy: "A selected work from the same continuous collection ribbon, lifted forward
+         from the hero stage for a closer look."
+  meta pills: [artist, "Artwork", year]
+
+
+===========================================================================
+INTERACTION — CARD HOVER / DRAG / CLICK / FOCUS
+===========================================================================
+
+HOVER (ribbon state, journey.phase < 0.82):
+  Hovered card: +18 normal-x, +26 normal-y, +52 z-depth, scale→1.08
+  Neighbors within ±4 cards: spread tangentially along the curve
+    strength = (5 - distance) / 4
+    slide  = strength * 34 (tangent direction)
+    depth  = strength * 24 (z)
+    settle = strength * 9 (slight pull back)
+    rotation += side * strength * 0.08
+  Cursor: 'grab'
+
+DRAG:
+  mousedown on hovered card → drag starts (12px threshold before draggingActive)
+  Mouse position mapped to world space at z=105
+  srz.tgt = velocityX * 0.020  (card tilts in drag direction)
+  srx.tgt = -0.38
+  Release with dist > 115 world units → card "scattered" (stays floating)
+  Release with dist ≤ 115 → returnToRibbon()
+  No drag: quick click → openFocus()
+  Double-click scattered card → returnToRibbon()
+
+FOCUS STATE:
+  Focused card: centre stage (x≈0, y≈visible*0.03, z=155)
+                scale = 2.12/cardScale (mobile) or 2.46/cardScale (desktop)
+  Other cards: scattered to ring (±0.43–0.46 × visible width/height)
+               scale ≈ 0.48–0.56 / cardScale
+  Spring profile "focus-main": k≈0.082, d≈0.58
+  Spring profile "focus-rest": k≈0.074, d≈0.56
+  Focus info overlay fades in; headline fades out
+
+SPRING TUNING PROFILES:
+  "ribbon":     sx/sy k=0.085 d=0.58, sz k=0.082 d=0.56, srz k=0.078 d=0.58
+  "drag":       sx/sy k=0.110 d=0.66, sz k=0.105 d=0.62, srz k=0.090 d=0.64
+  "focus-main": sx/sy k=0.082 d=0.58, sz k=0.080 d=0.56, srz k=0.076 d=0.58
+  "focus-rest": sx/sy k=0.074 d=0.56, sz k=0.070 d=0.54, srz k=0.070 d=0.56
+
+
+===========================================================================
+ENTRANCE ANIMATION (GSAP timeline, delay 0.12s)
+===========================================================================
+
+@0.18s  #stage    opacity→1, scale→1, duration 0.7s, ease power3.out
+@0.62s  .hw       opacity→1, duration 0.5s, ease power2.out, stagger 0.1s
+@0.82s  #launch-date, #card-count  opacity→1, duration 0.5s, ease power2.out
+@0.68s  (callback) Ribbon draws from center outward:
+          mid = floor(N/2); cards ordered outward from mid
+          each card ss.tgt = 1, staggered 28ms per card
+        Drag hint: fades in after 1s, fades out after 2.8s more
+
+
+===========================================================================
+SCROLL EXPERIENCE — 6-PHASE JOURNEY
+===========================================================================
+
+The journey phase is a float 0–5 mapped from scrollY to sections.
+Scroll marker = window.scrollY + window.innerHeight * 0.42
+smoothstep easing between integer phases.
+
+Chapter targets (how the 3D ribbon morphs per phase):
+
+Phase 0 — Hero (ribbon tight S-curve):
+  Each card at its base S-curve position, y slightly raised (−0.035 × visible.height)
+  scale = 0.84 (0.9 mobile)
+
+Phase 1 — Ribbon Unlocks (spreading):
+  spreadX: (t−0.5) * visible.width * 0.66
+  waveY: -sin(t * PI * 2.2) * visible.height * 0.18
+  lift: sin(t * PI * 4) * visible.height * 0.06
+  lerp(base, spread, 0.68), lerp(base, waveY+lift, 0.72)
+  z: 22 + seededRand * 130; rotation z: base + random ±0.17; rx: ±0.11
+
+Phase 2 — Gallery Cloud (scattered 3D field):
+  x: seededRand * visible.width * 0.86 (centred)
+  y: seededRand * visible.height * 0.78 (centred)
+  z: -70 + seededRand * 260
+  rz: ±0.46; rx: ±0.17; scale: (0.56 + seededRand * 0.94) / cardScale
+
+Phase 3 — Focus:
+  focusCardIndex (index 3, Vermeer) → centre, z=168, scale 2.42/cardScale (2.0 mobile)
+  others → ring at ±0.42 × visible dimensions, scale 0.42–0.64/cardScale
+
+Phase 4 — Details:
+  focusCardIndex → z=210, scale 5.8/cardScale (4.4 mobile), x = -visible.width*0.10
+  others → pushed far left/right, z=-110 to -72, tiny scale
+
+Phase 5 — Closing (compact ribbon):
+  x: (t−0.5) * visible.width * 0.30 (0.44 mobile)
+  y: -sin(t * PI * 2) * visible.height * 0.055 − visible.height * 0.04
+  z: base.z * 0.2; rz: base.rz * 0.74; scale: 0.56/cardScale (0.48 mobile)
+
+seededRand(seed): deterministic  x = sin(seed*12.9898)*43758.5453; return frac(x)
+
+
+===========================================================================
+SCROLL SECTIONS (HTML below #stage-wrap)
+===========================================================================
+
+All sections use class "ks" (display:flex, background var(--bg), overflow:hidden)
+
+LEFT LABEL COLUMN (.ks-lbl):
+  width clamp(128px,13vw,176px); position:sticky top:0; height:100vh
+  padding: clamp(36px,6vh,64px) 0 0 clamp(16px,2.6vw,34px)
+  Contains:
+    .ks-rule: absolute left 0; top/bottom 0; 1px wide; rgba(0,0,0,0.09)
+              has a .ks-dot (6×6px circle, fg colour, -2.5px left offset)
+    .ks-inner:
+      .ks-num:  Cormorant Garamond clamp(24px,2.8vw,36px) weight 300 / mb 7px
+      .ks-ttl:  Inter 8.5px weight 500 letter-spacing 0.18em UPPERCASE / mb 15px / line-height 1.7
+      .ks-dsc:  Inter 11px weight 300 / line-height 2.05 / color var(--muted)
+
+RIGHT STAGE COLUMN (.ks-stage): flex:1; min-height:100vh; position:relative
+
+
+SECTION 02 — RIBBON UNLOCKS (#ks02):
+  15 HTML art-card divs (.art-card.s02-card) using CSS custom properties:
+    --w (width), --rot (rotation), positioned with left/top percentages
+  transform: translate(-50%,-50%) rotate(var(--rot))
+  filter: blur(var(--blur, 0px)); border-radius:2px; overflow:hidden
+  box-shadow: 0 2px 10px rgba(0,0,0,0.10), 0 8px 32px rgba(0,0,0,0.09)
+  Images: painting_02–05 cycling
+  Positions (left%, top%, --w, --rot):
+    5%,57%,68px,-28deg | 12%,42%,72px,-20deg | 18%,27%,76px,-13deg
+    25%,44%,72px,-7deg | 31%,60%,74px,-1deg  | 38%,48%,78px,5deg
+    44%,33%,74px,9deg  | 50%,21%,70px,13deg  | 56%,38%,76px,8deg
+    62%,55%,72px,14deg | 68%,44%,78px,19deg  | 74%,30%,74px,23deg
+    80%,47%,72px,26deg | 86%,62%,68px,29deg  | 92%,47%,74px,24deg
+
+SECTION 03 — GALLERY CLOUD (#ks03):
+  ks-stage min-height: 150vh
+  12 art-card divs (.s03-card) with data-depth attribute (−0.9 to +0.5)
+  blur 0–3.5px depending on depth
+  Positions + sizes (left%, top%, --w, --rot, --blur, data-depth):
+    8%,18%,88px,-14deg,2px,-0.6  | 16%,59%,100px,-6deg,0px,0.3
+    23%,32%,82px,8deg,1px,-0.2   | 30%,74%,78px,-10deg,3px,-0.8
+    38%,27%,122px,4deg,0px,0.5   | 47%,56%,96px,-4deg,0.5px,0.1
+    56%,16%,84px,12deg,1.5px,-0.4| 63%,65%,94px,-8deg,0px,0.4
+    71%,39%,86px,16deg,1px,-0.3  | 80%,21%,80px,-18deg,2.5px,-0.7
+    87%,58%,90px,10deg,2px,-0.5  | 4%,79%,84px,14deg,3.5px,-0.9
+  Right-side nav: 5 dots (.s03-nav-dot), active class on first, absolute right
+
+SECTION 04 — FOCUS (#ks04):
+  ks-stage: display:flex; align-items:center; justify-content:center
+  6 blurred background cards (.s04-bg):
+    4%,22%,76px,-15deg,6px | 10%,69%,70px,8deg,5px  | 75%,18%,80px,12deg,6px
+    83%,66%,74px,-9deg,5px | 2%,47%,66px,-20deg,7px  | 88%,43%,72px,18deg,6px
+  .s04-focus-row: flex row, gap clamp(28px,4vw,64px), centered
+    .s04-focus-card: clamp(148px,14.5vw,216px) × (width * 1.3)
+                     border-radius 2px; box-shadow layered soft shadow
+                     Image: painting_04.jpg (Vermeer)
+    .s04-info:
+      max-width 220px
+      .s04-info-artist: 10px weight 400 letter-spacing 0.14em UPPERCASE / color var(--muted) / mb 10px
+      .s04-info-title:  Cormorant Garamond clamp(22px,2.8vw,40px) weight 400 line-height 1.1 / mb 14px
+                        Text: "Girl with a<br>Pearl Earring"
+      .s04-info-meta:   Inter 11px weight 300 line-height 2 color var(--muted)
+                        Text: "c. 1665<br>Oil on canvas"
+
+SECTION 05 — DETAILS (#ks05):
+  ks-stage: flex centred
+  .s05-thumb: absolute; top clamp(18px,3.6vh,50px); right clamp(50px,7.5vw,96px)
+              60×76px; border-radius 2px; overflow hidden; shadow
+              Image: painting_01.jpg
+  .s05-crop:  width clamp(260px,50vw,600px); height clamp(240px,42vw,520px)
+              border-radius 3px; overflow hidden; shadow
+    img: object-fit cover; object-position 40% 28%;
+         transform: scale(3.5); transform-origin: 40% 28%
+         (simulates zoomed crop into top-left area)
+         Image: painting_01.jpg
+
+SECTION 06 — CLOSING (#ks06):
+  ks-stage: flex-column; align-items:center; justify-content:center
+            gap 52px; min-height:110vh; padding 80px 20px
+  .s06-ribbon: width min(420px,80vw); height 140px; position:relative
+    7 small art-card divs (.s06-card, --w≈52-56px) forming compact arc:
+      29%,48%,52px,-22deg | 37%,37%,54px,-14deg | 43%,46%,56px,-6deg
+      50%,57%,56px,2deg   | 57%,47%,54px,9deg   | 63%,37%,56px,15deg
+      70%,48%,52px,21deg
+  .s06-heading: text-align:center; opacity:0 initially
+    p: Cormorant Garamond clamp(28px,4.6vw,60px) weight 400 — "Art is endless."
+    p+p: italic weight 300 — "So is curiosity."
+
+FOOTER (#kimo-footer):
+  display:flex; justify-content:space-between; align-items:center
+  padding: clamp(18px,2.8vh,32px) clamp(18px,4.8vw,76px)
+  border-top: 1px solid rgba(0,0,0,0.06); background var(--bg)
+  opacity:0 initially; fades in via ScrollTrigger (top 88%)
+  .foot-copy: "© KIMO 2026" — 10px letter-spacing 0.10em UPPERCASE var(--muted)
+  nav: 3 links (About / Contact / Journal) — 10px weight 400 letter-spacing 0.12em
+       UPPERCASE; color var(--fg); opacity 0.65 default, 1.0 on hover
+
+
+===========================================================================
+LOCAL IMAGE ASSETS
+===========================================================================
+
+Folder: Resources/artworks/
+  painting_01.jpg  (used as: The Starry Night)
+  painting_02.jpg  (used as: Mona Lisa)
+  painting_03.jpg  (used as: The Great Wave)
+  painting_04.jpg  (used as: Girl with a Pearl Earring)
+  painting_05.jpg  (used as: The Kiss)
+
+Note: The Three.js WebGL layer also tries to load the Wikimedia URLs above;
+the local files are used only in the HTML scroll sections.
+If reproducing without local files, replace src attributes with the Wikimedia URLs.
+
+
+===========================================================================
+RESPONSIVE BREAKPOINTS
+===========================================================================
+
+@media (max-width: 760px):
+  #journey-copy: top clamp(22px,7vh,46px); width 118px
+  #journey-desc: font-size 11px; line-height 1.55
+  #hero-headline: left/right 18px; bottom clamp(34px,7vh,64px); gap clamp(12px,2.8vw,22px)
+  .hw: font-size clamp(38px,11.4vw,62px)
+  #hero-meta: left/right 18px; bottom calc(clamp(34px,7vh,64px) + clamp(42px,10vw,58px))
+  #closing-headline: top calc(50%+clamp(76px,15vh,116px)); width min(310px,76vw)
+  #closing-headline p: font-size clamp(31px,10vw,48px)
+  #stage-art-label: repositioned bottom; width min(260px,70vw)
+  #stage-progress: right 12px
+
+@media (max-width: 700px):
+  #focus-info: bottom 24px
+
+
+===========================================================================
+ACCESSIBILITY
+===========================================================================
+
+- aria-label on menu, progress dots, canvas interactions
+- aria-expanded on hamburger; aria-hidden on dropdown
+- aria-live="polite" on journey sidebar and focus overlay
+- prefers-reduced-motion: spring stiffness increased, damping decreased
+  (snappier, less oscillation); GSAP durations shortened
+
+
+===========================================================================
+KEY JAVASCRIPT BEHAVIOURS SUMMARY
+===========================================================================
+
+1. On scroll: updateJourneyFromScroll()
+   - Computes journey.phase (0–5 float)
+   - Calls setChapterUi(round(phase)) — updates sidebar text, dots, menu active state
+   - Calls updateBackgroundTone(phase) — interpolates all CSS colour variables
+   - Controls opacity of .hw headline (fades out as scroll begins)
+   - Controls stageArtLabel opacity (phases 3–4)
+   - Controls closingHeadline opacity (phase > 4.62)
+   - Fades out #stage when footer is in view
+
+2. Per animation frame: tick()
+   - Ticks all 32 spring sets
+   - Applies journeyTarget() which lerps between chapterTarget(low) and chapterTarget(high)
+   - Applies hover spread effect on ribbon-state cards
+   - Updates Three.js pivot transforms and renders scene
+
+3. seededRand(seed): deterministic pseudo-random
+   x = Math.sin(seed * 12.9898) * 43758.5453; return x - floor(x)
+
+4. visibleWorldAt(z): returns {width, height} of frustum at given z depth
+
+5. coverTexture(texture): sets UV offset/repeat to achieve object-fit:cover
+   on texture mapped to the card's aspect ratio (CW2/CH2 = 52/68)
+
+
+===========================================================================
+EXACT HTML STRUCTURE SKELETON
+===========================================================================
+
+<body>
+  <!-- 4 corner bg images #bg-tl #bg-tr #bg-bl #bg-br -->
+
+  <div id="stage-wrap">
+    <div id="stage">
+      <div id="stage-header">
+        <span id="wordmark">Kimo</span>
+        <button id="menu-btn">3 spans</button>
+        <nav id="page-menu">
+          <ul class="page-menu-list">6 li > button.page-menu-link</ul>
+        </nav>
+      </div>
+      <div id="stage-body">
+        <canvas id="gl"></canvas>
+        <div id="hero-headline">
+          <span class="hw" id="hw-l">Opening</span>
+          <span class="hw" id="hw-r">Collection</span>
+        </div>
+        <div id="spill"><div class="dot"></div><span class="label">Explore</span></div>
+        <div id="hint">Drag cards to explore</div>
+        <div id="hero-meta">
+          <div id="card-count">32 works</div>
+          <div id="launch-date">June 2026</div>
+        </div>
+        <div id="closing-headline"><p>Art is endless.</p><p>So is curiosity.</p></div>
+        <aside id="journey-copy" aria-live="polite">
+          <span id="journey-num">01</span>
+          <span id="journey-title">Hero /<br>Closed Collection</span>
+          <p id="journey-desc">The collection is whole...</p>
+        </aside>
+        <nav id="stage-progress" aria-label="Collection sections">
+          6 buttons.stage-progress-dot
+        </nav>
+        <aside id="stage-art-label" aria-hidden="true">
+          <span id="stage-art-kicker">Johannes Vermeer</span>
+          <span id="stage-art-title">Girl with a<br>Pearl Earring</span>
+          <span id="stage-art-meta">c. 1665<br>Oil on canvas</span>
+        </aside>
+        <aside id="focus-info" aria-live="polite" aria-hidden="true">
+          <button id="focus-close">×</button>
+          <span id="focus-kicker">Selected work</span>
+          <h2 id="focus-title">Untitled study</h2>
+          <p id="focus-copy"></p>
+          <div id="focus-meta"></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <div id="kimo-scroll">
+    <div id="hero-anchor"></div>  <!-- height:100vh -->
+    <section class="ks" id="ks02">...</section>
+    <section class="ks" id="ks03">...</section>
+    <section class="ks" id="ks04">...</section>
+    <section class="ks" id="ks05">...</section>
+    <section class="ks" id="ks06">...</section>
+    <footer id="kimo-footer">...</footer>
+  </div>
+
+  <script src="three@0.160.0 CDN"></script>
+  <script src="gsap@3.12.5 CDN"></script>
+  <script src="ScrollTrigger CDN"></script>
+  <script>/* main Three.js + spring + journey script (IIFE) */</script>
+  <script>/* scroll animations script (IIFE) */</script>
+</body>
+
+
+===========================================================================
+END OF MASTER PROMPT
+===========================================================================
